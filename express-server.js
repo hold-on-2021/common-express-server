@@ -1,5 +1,5 @@
 let staticPath = '/www/h5-cocos-club/dist'
-let port = 8080
+let port = 80
 let path = require('path')
 const request = require('request');
 
