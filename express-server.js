@@ -1,110 +1,70 @@
-let staticPath = '/www/h5-cocos-club/dist'
-let port = 80
-let path = require('path')
-const request = require('request');
+const express = require('express');
+const https = require('https');
+const path = require('path');
+const fs = require('fs');
+const bodyParser = require('body-parser');
 
-var express = require('express')
-var app = express()
+const staticPath = '/www/h5-cocos-club/dist';
+const port = 80;
+const httpsPort = 443; // HTTPS 端口
 
-const axios = require('axios');
-const bodyParser = require('body-parser')
+const app = express();
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-    extended: false
-}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
+// 读取 SSL 证书和私钥文件
+const privateKey = fs.readFileSync(path.resolve('Nginx', 'cocos.club.key'), 'utf8');
+const certificate = fs.readFileSync(path.resolve('Nginx', 'cocos.club.crt'), 'utf8');
+const ca = fs.readFileSync(path.resolve('Nginx', 'cocos.club.pem'), 'utf8'); // 可选，如果你有 CA 中间证书链的话
+console.log('DEBUG_LOG:certificate', certificate);
 
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+  ca: ca // 可选
+};
 
+// 创建 HTTPS 服务器
+const httpsServer = https.createServer(credentials, app);
+
+// 静态文件服务
 app.use(express.static(staticPath));
 app.get('*', function (req, res) {
-  res.sendFile(path.join(staticPath, 'index.html'))
-})
+  res.sendFile(path.join(staticPath, 'index.html'));
+});
+
+// 设置跨域头
 app.all('*', function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-  res.header("X-Powered-By", ' 3.2.1')
+  res.header("X-Powered-By", '3.2.1');
   res.header("Content-Type", "application/json;charset=utf-8");
   next();
 });
 
+// 欢迎页面
 app.get('/', function (req, res) {
-  res.send('Welcome!')
-})
+  res.send('Welcome!');
+});
 
+// 处理 /ask 路由
 app.post('/ask', async (req, res) => {
-  let question = req.body.question + ''
-  // 定义 POST 数据
-  const postData = {
-      model: 'gpt-4',
-      // model: 'gpt-4-0613',
-      messages: [{
-          role: 'user',
-          content: question
-      }],
-      temperature: 0.9
-  };
-
-  const apiUrl = 'https://dyxc-aoai-1.openai.azure.com/openai/deployments/qxai/chat/completions?api-version=2023-03-15-preview';  // 替换为实际的 API 地址
-  const headers = {
-      'api-key': '2b5580a845634124b9b4c8c57d74f7a5',
-      'Content-Type': 'application/json' // 设置内容类型为 JSON
-  };
-
-
-  // res.status(200).json({
-  //   data: {
-  //       replay: 'ok111'
-  //   },
-  //   code: 200
-  // });
-  axios.post(apiUrl, postData, {headers}).then(response => {
-      let result = response.data
-      console.log('DEBUG_LOG:gpt result', result);
-
-      if (result && result.choices && result.choices[0]) {
-        let replay = result.choices[0].message.content
-        console.log('DEBUG_LOG:res call', replay);
-        res.status(200).json({
-          data: {
-              replay
-          },
-          code: 200
-        });
-      }
-  }).catch(error => {
-      console.error('Error:', error);
-      res.status(500).json({
-        error: {
-            message: 'An error occurred during your request.',
-        }
-    });
-  });
+  // ... 你的 /ask 路由处理逻辑
 });
 
+// 处理 /chat 路由
 app.post('/chat', (req, res) => {
-  console.log('chat', req.body.messages)
-  const messages = req.body.messages;
-  const options = {
-    url: 'https://api.openai.com/v1/chat/completions',
-    method: 'POST',
-    strictSSL: false, // 关闭证书验证
-    headers: {
-      "Authorization": "Bearer sk-2b5580a845634124b9b4c8c57d74f7a5",
-      "Content-Type": "application/json",
-    },
-    json: {
-      "model": "gpt-3.5-turbo",
-      "stream": true,
-      "messages": messages
-    }
-  };
-  const proxyReq = request(options);
-  proxyReq.on('response', function(response) {
-    response.pipe(res);
-  });
+  // ... 你的 /chat 路由处理逻辑
 });
 
-console.log('DEBUG_LOG:listening port', port);
-app.listen(port)
+// 启动 HTTPS 服务器
+httpsServer.listen(httpsPort, () => {
+  console.log(`HTTPS Server is running on port ${httpsPort}`);
+});
+
+// 启动 HTTP 服务器（如果需要）
+app.listen(port, () => {
+  console.log(`HTTP Server is running on port ${port}`);
+});
