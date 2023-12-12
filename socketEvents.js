@@ -1,10 +1,11 @@
 // socketEvents.js
 const WebSocket = require('ws');
 
-module.exports = function (io) {
-    console.log('DEBUG_LOG:setup io', '');
+module.exports = function (io, server) {
+    console.log('DEBUG_LOG:setup wsserver', '');
 
-    const wss = new WebSocket.Server({ port: 3000 });
+    // const wss = new WebSocket.Server({ port: 3000 });
+    const wss = new WebSocket.Server({ server });
     
     wss.on('connection', function connection(ws) {
         console.log("新的客户端已连接");

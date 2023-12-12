@@ -26,7 +26,7 @@ const httpsServer = createServer(app);
 
 // 配置 Socket.io
 const io = socketIO(httpsServer);
-setupSocketEvents(io);
+setupSocketEvents(io, httpsServer);
 
 // 重定向所有请求到 index.html
 app.get('*', function (req, res) {
