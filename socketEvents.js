@@ -11,7 +11,7 @@ module.exports = function (io, server) {
         console.log("新的客户端已连接");
     
         ws.on('message', function incoming(message) {
-            console.log('收到消息：', message);
+            console.log('收到消息：', message.toString());
             ws.send("收到：" + message); // 将消息回发给客户端
         });
     
