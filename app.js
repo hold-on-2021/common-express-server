@@ -18,11 +18,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(staticPath));
 
-// 应用路由配置
-setupRoutes(app);
-
 // 创建 HTTPS 服务器
 const httpsServer = createServer(app);
+
+// 应用路由配置
+setupRoutes(app);
 
 // 配置 Socket.io
 const io = socketIO(httpsServer);
