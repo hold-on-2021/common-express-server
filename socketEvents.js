@@ -70,11 +70,11 @@ module.exports = function (io, server) {
                 global.fullHTML = applyDiff(global.fullHTML, message.change)
                 console.log('DEBUG_LOG:修正global.fullHTML', message.changeID, global.fullHTML.length);
                 // 同步changeID
-                let message = {
+                let msg = {
                     type: "syncChangeID",
                     changeID: message.changeID
                 }
-                ws.send(JSON.stringify(message));
+                ws.send(JSON.stringify(msg));
                 broadcast(JSON.stringify(message), ws)
             }
 
