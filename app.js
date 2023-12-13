@@ -14,8 +14,10 @@ const httpsPort = 443;
 const app = express();
 
 // 中间件配置
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static(staticPath));
 
 // 创建 HTTPS 服务器
