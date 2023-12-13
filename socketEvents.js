@@ -13,6 +13,27 @@ function broadcast(message, excludeClient) {
     });
 }
 
+function applyDiff(text1, changes) {
+    let text1List = [...text1];
+
+    // Sort 'remove' changes in descending order of position
+    changes.remove.sort((a, b) => b.pos - a.pos);
+
+    // Apply removals
+    changes.remove.forEach(change => {
+        text1List.splice(change.pos, change.words.length);
+    });
+
+    // Sort 'add' changes in ascending order of position
+    changes.add.sort((a, b) => a.pos - b.pos);
+
+    // Apply additions
+    changes.add.forEach(change => {
+        text1List.splice(change.pos, 0, ...change.words);
+    });
+
+    return text1List.join('');
+}
 
 module.exports = function (io, server) {
     console.log('DEBUG_LOG: setup wsserver', '');
@@ -27,9 +48,9 @@ module.exports = function (io, server) {
 
         ws.on('message', function (msg) {
             let json_message = msg.toString()
-            console.log(`收到消息：${json_message} 从客户端ID: ${clientId}`);
-
+            
             if (json_message.startsWith('identify:boss')) {
+                console.log(`收到消息：${json_message} 从客户端ID: ${clientId}`);
                 // 标记为boss客户端
                 bossClients.add(ws);
                 console.log(`客户端ID: ${clientId} 被标记为boss`);
@@ -45,6 +66,15 @@ module.exports = function (io, server) {
             }
 
             if (message.type == 'change') {
+                // 修正global.fullHTML
+                global.fullHTML = applyDiff(global.fullHTML, message.change)
+                console.log('DEBUG_LOG:修正global.fullHTML', message.changeID, global.fullHTML.length);
+                // 同步changeID
+                let message = {
+                    type: "syncChangeID",
+                    changeID: message.changeID
+                }
+                ws.send(JSON.stringify(message));
                 broadcast(JSON.stringify(message), ws)
             }
 
