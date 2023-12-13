@@ -37,5 +37,6 @@ module.exports = function(app) {
 
 async function saveFullHTML(fullHTML) {
     global.fullHTML = fullHTML
+    console.log('DEBUG_LOG:saveFullHTML', fullHTML.length);
     return
 }
