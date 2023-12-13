@@ -6,7 +6,7 @@ let allClients = new Set();
 
 // 广播消息给所有已连接的客户端,除了boss
 function broadcast(message, excludeClient) {
-    clients.forEach((client) => {
+    allClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN && excludeClient != client) {
             client.send(message);
         }
