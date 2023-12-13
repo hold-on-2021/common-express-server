@@ -16,9 +16,10 @@ module.exports = function(app) {
     });
     app.post('/uploadHTML', async (req, res) => {
         const fullHTML = req.body.fullHTML;
+        const innerHTML = req.body.innerHTML;
         console.log("DEBUG_LOG:API fullHTML", fullHTML.length)
         try {
-            const result = await saveFullHTML(fullHTML);
+            const result = await saveFullHTML(fullHTML, innerHTML);
             res.json({ code: 200, data: result });
         } catch (error) {
             res.status(500).json({ code: 500, message: 'Internal Server Error' });
@@ -35,8 +36,10 @@ module.exports = function(app) {
     });
 };
 
-async function saveFullHTML(fullHTML = '') {
+async function saveFullHTML(fullHTML = '', innerHTML) {
     global.fullHTML = fullHTML
-    console.log('DEBUG_LOG:saveFullHTML', fullHTML.length, fullHTML.substr(0, 30), fullHTML.substr(-30));
+    global.innerHTML = innerHTML
+    console.log('DEBUG_LOG:saveFullHTML fullHTML', fullHTML.length, fullHTML.substr(0, 30), fullHTML.substr(-30));
+    console.log('DEBUG_LOG:saveFullHTML innerHTML', innerHTML.length, innerHTML.substr(0, 30), innerHTML.substr(-30));
     return
 }

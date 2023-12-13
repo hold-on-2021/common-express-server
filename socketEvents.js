@@ -67,8 +67,8 @@ module.exports = function (io, server) {
 
             if (message.type == 'change') {
                 // 修正global.fullHTML
-                global.fullHTML = applyDiff(global.fullHTML, message.change)
-                console.log('DEBUG_LOG:修正global.fullHTML', message.changeID, global.fullHTML.length);
+                global.innerHTML = applyDiff(global.innerHTML, message.change)
+                console.log('DEBUG_LOG:修正global.innerHTML', message.changeID, global.innerHTML.length);
                 // 同步changeID
                 let msg = {
                     type: "syncChangeID",
