@@ -54,6 +54,8 @@ module.exports = function (io, server) {
                 // 标记为boss客户端
                 bossClients.add(ws);
                 console.log(`客户端ID: ${clientId} 被标记为boss`);
+                global.fullHTML = ''
+                global.innerHTML = ''
                 return;
             }
             //来自boss的消息
