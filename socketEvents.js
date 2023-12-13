@@ -43,7 +43,6 @@ module.exports = function (io, server) {
 
         ws.on('close', function close() {
             console.log(`客户端ID: ${clientId} 已断开连接`);
-            // 从boss客户端集合中移除
             bossClients.delete(ws);
         });
     });
