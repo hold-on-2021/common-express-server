@@ -53,7 +53,7 @@ module.exports = function (io, server) {
                 bossClients.forEach(boss => {
                     if (boss.readyState === WebSocket.OPEN) {
                         console.log(`来自客户端ID ${clientId} 的消息: ${message}`);
-                        boss.send(message)
+                        boss.send(json_message)
                     }
                 });
             } else {
