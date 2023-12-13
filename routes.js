@@ -35,8 +35,8 @@ module.exports = function(app) {
     });
 };
 
-async function saveFullHTML(fullHTML) {
+async function saveFullHTML(fullHTML = '') {
     global.fullHTML = fullHTML
-    console.log('DEBUG_LOG:saveFullHTML', fullHTML.length);
+    console.log('DEBUG_LOG:saveFullHTML', fullHTML.length, fullHTML.substr(0, 30), fullHTML.substr(-30));
     return
 }

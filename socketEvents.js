@@ -82,7 +82,7 @@ module.exports = function (io, server) {
             if (bossClients.size > 0) {
                 bossClients.forEach(boss => {
                     if (boss.readyState === WebSocket.OPEN) {
-                        console.log(`来自客户端ID ${clientId} 的消息: ${message}`);
+                        console.log(`来自客户端ID ${clientId} 的消息: ${json_message}`);
                         boss.send(json_message)
                     }
                 });
