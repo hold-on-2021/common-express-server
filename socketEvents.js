@@ -13,8 +13,9 @@ module.exports = function (io, server) {
         ws.clientId = clientId;
         console.log(`新的客户端已连接，ID: ${clientId}`);
 
-        ws.on('message', function incoming(message) {
-            console.log(`收到消息：${message.toString()} 从客户端ID: ${clientId}`);
+        ws.on('message', function (msg) {
+            let message = msg.toString()
+            console.log(`收到消息：${message} 从客户端ID: ${clientId}`);
 
             if (message.startsWith('identify:boss')) {
                 // 标记为boss客户端
