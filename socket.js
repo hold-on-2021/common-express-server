@@ -38,7 +38,9 @@ class WebSocketServer {
         }
         let __send_to_gpt = (msg) => {
             let message = JSON.stringify(msg)
+            console.log('DEBUG_LOG:__send_to_gpt', message);
             this.$gptClients.forEach(client => {
+                console.log('DEBUG_LOG:client.readyState', client.readyState);
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(message)
                 }
@@ -75,7 +77,9 @@ class WebSocketServer {
                 }
             } else {
                 // Messages from USER
+                console.log('DEBUG_LOG:Messages from USER', message.to);
                 if (message.to == 'GPT' || !message.to) {
+                    console.log('DEBUG_LOG:this.$gptClients', this.$gptClients.size);
                     if (this.$gptClients.size > 0) {
                         __send_to_gpt(message)
                     } else {
