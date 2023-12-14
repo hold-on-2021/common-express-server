@@ -4,7 +4,7 @@ const path = require('path');
 
 const createServer = require('./setupServer'); // HTTPS 服务器设置
 const setupRoutes = require('./routes');       // 路由处理
-const setupSocketEvents = require('./socketEvents'); // Socket 事件
+const Socket = require('./socket');
 
 const staticPath = '/www/h5-cocos-club/dist';
 const port = 80;
@@ -24,7 +24,7 @@ const httpsServer = createServer(app);
 setupRoutes(app);
 
 // 配置 WebSocket
-setupSocketEvents(httpsServer);
+new Socket(httpsServer);
 
 // 重定向所有请求到 index.html
 app.get('*', function (req, res) {
