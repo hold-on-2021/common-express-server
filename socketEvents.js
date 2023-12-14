@@ -1,115 +1,105 @@
 const WebSocket = require('ws');
+const utils = require('./utils');
+const context = require('./context')
 
-let clientIdCounter = 0;
-let bossClients = new Set(); // 用于存储所有boss客户端的集合
-let allClients = new Set();
+class WebSocketServer {
+    constructor(server) {
+        this.$wss = new WebSocket.Server({ server });
+        this.$clientID = 0;
+        this.$gptClients = new Set();
+        this.$userClients = new Set();
 
-// 广播消息给所有已连接的客户端,除了boss
-function broadcast(message) {
-    allClients.forEach((client) => {
-        if (!client.isBoss && client.readyState === WebSocket.OPEN) {
-            client.send(message);
+        this.$wss.on('connection', () => {
+            this.handleConnection()
+        });
+        this.$wss.on('error', () => {
+            this.handleError()
+        });
+        context.socket = this
+    }
+
+    broadcastMessage(message) {
+        this.$userClients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    }
+
+    handleConnection(ws) {
+        const cid = ++this.$clientID;
+        ws.clientId = cid;
+        this.$userClients.add(ws);
+        console.log(`新的客户端已连接，ID: ${cid}`);
+
+        function __pass_back_msg(msg) {
+            ws.send(JSON.stringify(msg))
         }
-    });
-}
-
-global.broadcast = broadcast;
-
-function applyDiff(text1, changes) {
-    let text1List = [...text1];
-
-    // Sort 'remove' changes in descending order of position
-    changes.remove.sort((a, b) => b.p - a.p);
-
-    // Apply removals
-    changes.remove.forEach(change => {
-        text1List.splice(change.p, change.w.length);
-    });
-
-    // Sort 'add' changes in ascending order of position
-    changes.add.sort((a, b) => a.p - b.p);
-
-    // Apply additions
-    changes.add.forEach(change => {
-        text1List.splice(change.p, 0, ...change.w);
-    });
-
-    return text1List.join('');
-}
-
-module.exports = function (io, server) {
-    console.log('DEBUG_LOG: setup wsserver', '');
-
-    const wss = new WebSocket.Server({ server });
-
-    wss.on('connection', function connection(ws) {
-        const clientId = ++clientIdCounter;
-        ws.clientId = clientId;
-        allClients.add(ws)
-        console.log(`新的客户端已连接，ID: ${clientId}`);
-
-        ws.on('message', function (msg) {
-            let json_message = msg.toString()
-
-            if (json_message.startsWith('identify:boss')) {
-                console.log(`收到消息：${json_message} 从客户端ID: ${clientId}`);
-                // 标记为boss客户端
-                ws.isBoss = true
-                bossClients.add(ws);
-                console.log(`客户端ID: ${clientId} 被标记为boss`);
-                global.fullHTML = ''
-                global.innerHTML = ''
-                global.appliedChangeID = 0
-                return;
-            }
-            //来自boss的消息
-            let message = json_message
-            try {
-                message = JSON.parse(json_message)
-            } catch (error) {
-                console.error('JSON.parse error', json_message)
-                return
-            }
-
-            if (message.type == 'change') {
-                // 修正global.fullHTML
-                global.innerHTML = applyDiff(global.innerHTML, message.change)
-                global.appliedChangeID = message.changeID
-                console.log('DEBUG_LOG:修正global.innerHTML', message.changeID, global.innerHTML.length);
-                // 同步changeID
-                let msg = {
-                    type: "syncChangeID",
-                    changeID: message.changeID
+        function __send_to_gpt(msg) {
+            let message = JSON.stringify(msg)
+            this.$gptClients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message)
                 }
-                ws.send(JSON.stringify(msg));
-                broadcast(JSON.stringify(message), ws)
-            }
+            });
+        }
 
-            // 发送消息给boss
-            if (bossClients.size > 0) {
-                bossClients.forEach(boss => {
-                    if (boss.readyState === WebSocket.OPEN) {
-                        console.log(`来自客户端ID ${clientId} 的消息: ${json_message}`);
-                        boss.send(json_message)
+        ws.on('message', (msgBuffer) => {
+            let msgStr = msgBuffer.toString();
+            let message = JSON.parse(msgStr)
+
+            console.log(`收到消息：${msgStr} ID: ${cid}`);
+            if (message.from = 'GPT') {
+                // Messages from GPT
+                if (message.type ='boot') {
+                    this.$gptClients.add(ws);
+                    if (this.$userClients.has(ws)) {
+                        this.$userClients.delete(ws);
                     }
-                });
-            } else {
-                let message = {
-                    type: "tip",
-                    msg: "当前没有boss在线"
+    
+                    context.appliedChangeID = 0
+                    context.historyCells = []
+                    context.latestCellCore = ''
+                } else if (message.type == 'change') {
+                    context.latestCellCore = utils.applyDiff(context.latestCellCore, message.change)
+                    context.appliedChangeID = message.changeID
+    
+                    __pass_back_msg({
+                        from: 'SERVER',
+                        type: 'SYNC_CHANGE_ID',
+                        to: 'GPT',
+                        changeID: message.changeID
+                    })
+                    this.broadcastMessage(message)
                 }
-                ws.send(JSON.stringify(message));
+            } else {
+                // Messages from USER
+                if (message.to == 'GPT' || !message.to) {
+                    if (this.$gptClients.size > 0) {
+                        __send_to_gpt(message)
+                    } else {
+                        __pass_back_msg({
+                            from: 'SERVER',
+                            to: 'USER',
+                            type: "TIP",
+                            info: "当前没有GPT服务器在线"
+                        })
+                    }
+                }
             }
+
         });
 
-        ws.on('close', function close() {
-            console.log(`客户端ID: ${clientId} 已断开连接`);
-            bossClients.delete(ws);
-            allClients.delete(ws);
+        ws.on('close', () => {
+            console.log(`客户端ID: ${cid} 已断开连接`);
+            this.$gptClients.delete(ws);
+            this.$userClients.delete(ws);
         });
-    });
+    }
 
-    wss.on('error', function error(err) {
+    handleError(err) {
         console.error('WebSocket 服务器发生错误:', err);
-    });
-};
+    }
+}
+
+module.exports = WebSocketServer;
