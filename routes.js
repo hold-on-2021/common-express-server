@@ -17,7 +17,7 @@ module.exports = function (app) {
                 type: 'UPDATE_CELLS'
             })
         }
-        res.json({ code: 200, data: result });
+        res.json({ code: 200, data: null });
     });
     app.get('/getCells', async (req, res) => {
         res.json({
