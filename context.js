@@ -12,10 +12,12 @@ class Context {
         this.$latest_cell_core = ''
     }
     get historyCells() {
+        console.log('DEBUG_LOG:call get history cells', this.$history_cells.length);
         return this.$history_cells
     }
     set historyCells(cells) {
         this.$history_cells = cells
+        console.log('DEBUG_LOG:call set history cells', this.$history_cells.length);
     }
     get latestCellCore() {
         return this.$latest_cell_core
