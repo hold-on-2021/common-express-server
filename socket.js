@@ -33,10 +33,10 @@ class WebSocketServer {
         this.$userClients.add(ws);
         console.log(`新的客户端已连接，ID: ${cid}`);
 
-        function __pass_back_msg(msg) {
+        let __pass_back_msg = (msg) => {
             ws.send(JSON.stringify(msg))
         }
-        function __send_to_gpt(msg) {
+        let __send_to_gpt = (msg) => {
             let message = JSON.stringify(msg)
             this.$gptClients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -57,14 +57,14 @@ class WebSocketServer {
                     if (this.$userClients.has(ws)) {
                         this.$userClients.delete(ws);
                     }
-    
+
                     context.appliedChangeID = 0
                     context.historyCells = []
                     context.latestCellCore = ''
                 } else if (message.type == 'CHANGE') {
                     context.latestCellCore = utils.applyDiff(context.latestCellCore, message.change)
                     context.appliedChangeID = message.changeID
-    
+
                     __pass_back_msg({
                         from: 'SERVER',
                         type: 'SYNC_CHANGE_ID',
