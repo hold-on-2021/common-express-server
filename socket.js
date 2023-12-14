@@ -9,11 +9,11 @@ class WebSocketServer {
         this.$gptClients = new Set();
         this.$userClients = new Set();
 
-        this.$wss.on('connection', () => {
-            this.handleConnection()
+        this.$wss.on('connection', (ws) => {
+            this.handleConnection(ws)
         });
-        this.$wss.on('error', () => {
-            this.handleError()
+        this.$wss.on('error', (err) => {
+            this.handleError(err)
         });
         context.socket = this
     }
