@@ -59,6 +59,7 @@ class WebSocketServer {
                     }
     
                     context.appliedChangeID = 0
+                    console.log('DEBUG_LOG:context.historyCells = []', '');
                     context.historyCells = []
                     context.latestCellCore = ''
                 } else if (message.type == 'CHANGE') {
