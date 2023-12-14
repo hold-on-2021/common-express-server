@@ -51,7 +51,7 @@ class WebSocketServer {
             console.log(`收到消息：${msgStr} ID: ${cid}`);
             if (message.from = 'GPT') {
                 // Messages from GPT
-                if (message.type ='boot') {
+                if (message.type ='BOOT') {
                     this.$gptClients.add(ws);
                     if (this.$userClients.has(ws)) {
                         this.$userClients.delete(ws);
