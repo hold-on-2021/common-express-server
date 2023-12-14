@@ -20,6 +20,11 @@ module.exports = function (app) {
         console.log("DEBUG_LOG:API fullHTML", fullHTML.length)
         try {
             const result = await saveFullHTML(fullHTML, innerHTML);
+            if (global.broadcast) {
+                global.broadcast(JSON.stringify({
+                    type: 'update_html'
+                }))
+            }
             res.json({ code: 200, data: result });
         } catch (error) {
             res.status(500).json({ code: 500, message: 'Internal Server Error' });

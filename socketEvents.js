@@ -5,13 +5,15 @@ let bossClients = new Set(); // 用于存储所有boss客户端的集合
 let allClients = new Set();
 
 // 广播消息给所有已连接的客户端,除了boss
-function broadcast(message, excludeClient) {
+function broadcast(message) {
     allClients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN && excludeClient != client) {
+        if (!client.isBoss && client.readyState === WebSocket.OPEN) {
             client.send(message);
         }
     });
 }
+
+global.broadcast = broadcast;
 
 function applyDiff(text1, changes) {
     let text1List = [...text1];
@@ -48,10 +50,11 @@ module.exports = function (io, server) {
 
         ws.on('message', function (msg) {
             let json_message = msg.toString()
-            
+
             if (json_message.startsWith('identify:boss')) {
                 console.log(`收到消息：${json_message} 从客户端ID: ${clientId}`);
                 // 标记为boss客户端
+                ws.isBoss = true
                 bossClients.add(ws);
                 console.log(`客户端ID: ${clientId} 被标记为boss`);
                 global.fullHTML = ''
