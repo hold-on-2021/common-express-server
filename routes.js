@@ -7,7 +7,6 @@ module.exports = function (app) {
     app.post('/uploadCells', async (req, res) => {
         const historyCells = JSON.parse(req.body.historyCells);
         const latestCellCore = req.body.latestCellCore;
-        console.log('DEBUG_LOG:call uploadCells', historyCells.length);
         context.historyCells = historyCells
         context.latestCellCore = latestCellCore
         context.appliedChangeID = 0
@@ -20,7 +19,6 @@ module.exports = function (app) {
         res.json({ code: 200, data: null });
     });
     app.get('/getCells', async (req, res) => {
-        console.log('DEBUG_LOG:get cells', context.historyCells.length);
         res.json({
             code: 200,
             cell: {

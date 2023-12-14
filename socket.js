@@ -52,14 +52,13 @@ class WebSocketServer {
             console.log(`收到消息：${msgStr} ID: ${cid}`);
             if (message.from = 'GPT') {
                 // Messages from GPT
-                if (message.type ='BOOT') {
+                if (message.type == 'BOOT') {
                     this.$gptClients.add(ws);
                     if (this.$userClients.has(ws)) {
                         this.$userClients.delete(ws);
                     }
     
                     context.appliedChangeID = 0
-                    console.log('DEBUG_LOG:context.historyCells = []', '');
                     context.historyCells = []
                     context.latestCellCore = ''
                 } else if (message.type == 'CHANGE') {
