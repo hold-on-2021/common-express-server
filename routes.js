@@ -14,6 +14,17 @@ module.exports = function (app) {
             res.status(500).json({ code: 500, message: 'Internal Server Error' });
         }
     });
+    app.post('/uploadHTML', async (req, res) => {
+        const fullHTML = req.body.fullHTML;
+        const innerHTML = req.body.innerHTML;
+        console.log("DEBUG_LOG:API fullHTML", fullHTML.length)
+        try {
+            const result = await saveFullHTML(fullHTML, innerHTML);
+            res.json({ code: 200, data: result });
+        } catch (error) {
+            res.status(500).json({ code: 500, message: 'Internal Server Error' });
+        }
+    });
     app.get('/getHTML', async (req, res) => {
         res.json({
             code: 200,
