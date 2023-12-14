@@ -61,7 +61,7 @@ class WebSocketServer {
                     context.appliedChangeID = 0
                     context.historyCells = []
                     context.latestCellCore = ''
-                } else if (message.type == 'change') {
+                } else if (message.type == 'CHANGE') {
                     context.latestCellCore = utils.applyDiff(context.latestCellCore, message.change)
                     context.appliedChangeID = message.changeID
     
