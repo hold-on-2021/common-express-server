@@ -51,8 +51,10 @@ class WebSocketServer {
             let msgStr = msgBuffer.toString();
             let message = JSON.parse(msgStr)
 
-            console.log(`收到消息：${msgStr} ID: ${cid}`);
+            console.log(`收到消息-${msgStr} ID: ${cid}`);
+            console.log('DEBUG_LOG:message.from', message.from);
             if (message.from = 'GPT') {
+                console.log('DEBUG_LOG:Messages from GPT', '');
                 // Messages from GPT
                 if (message.type == 'BOOT') {
                     this.$gptClients.add(ws);
@@ -77,6 +79,7 @@ class WebSocketServer {
                 }
             } else {
                 // Messages from USER
+                console.log('DEBUG_LOG:from user', '');
                 console.log('DEBUG_LOG:Messages from USER', message.to);
                 if (message.to == 'GPT' || !message.to) {
                     console.log('DEBUG_LOG:this.$gptClients', this.$gptClients.size);
