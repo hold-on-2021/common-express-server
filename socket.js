@@ -19,9 +19,10 @@ class WebSocketServer {
     }
 
     broadcastMessage(message) {
+        let msgStr = JSON.stringify(message)
         this.$userClients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
+                client.send(msgStr);
             }
         });
     }
