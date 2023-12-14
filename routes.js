@@ -35,7 +35,8 @@ module.exports = function (app) {
             code: 200,
             html_object: {
                 fullHTML: global.fullHTML || '',
-                innerHTML: global.innerHTML || ''
+                innerHTML: global.innerHTML || '',
+                appliedChangeID: global.appliedChangeID || 0
             }
         });
     });
@@ -53,6 +54,7 @@ module.exports = function (app) {
 async function saveFullHTML(fullHTML = '', innerHTML) {
     global.fullHTML = fullHTML
     global.innerHTML = innerHTML
+    global.appliedChangeID = 0
     console.log('DEBUG_LOG:saveFullHTML fullHTML', fullHTML.length, fullHTML.substr(0, 30), fullHTML.substr(-30));
     console.log('DEBUG_LOG:saveFullHTML innerHTML', innerHTML.length, innerHTML.substr(0, 30), innerHTML.substr(-30));
     return

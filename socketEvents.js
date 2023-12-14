@@ -59,6 +59,7 @@ module.exports = function (io, server) {
                 console.log(`客户端ID: ${clientId} 被标记为boss`);
                 global.fullHTML = ''
                 global.innerHTML = ''
+                global.appliedChangeID = 0
                 return;
             }
             //来自boss的消息
@@ -73,6 +74,7 @@ module.exports = function (io, server) {
             if (message.type == 'change') {
                 // 修正global.fullHTML
                 global.innerHTML = applyDiff(global.innerHTML, message.change)
+                global.appliedChangeID = message.changeID
                 console.log('DEBUG_LOG:修正global.innerHTML', message.changeID, global.innerHTML.length);
                 // 同步changeID
                 let msg = {
